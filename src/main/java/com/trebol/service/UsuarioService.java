@@ -12,6 +12,9 @@ import com.trebol.repository.RolRepository;
 import com.trebol.repository.UsuarioRepository;
 import com.trebol.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,7 @@ public class UsuarioService {
     private final RolRepository rolRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO request) {
 
@@ -134,12 +138,15 @@ public class UsuarioService {
     }
 
     public LoginResponseDTO login(LoginRequestDTO request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getCorreo(), request.getPassword()));
+        } catch (AuthenticationException ex) {
+            throw new IllegalArgumentException("Correo o contraseña incorrectos");
+        }
+
         Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con correo: " + request.getCorreo()));
-
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
-            throw new IllegalArgumentException("Contraseña incorrecta");
-        }
 
         String token = jwtService.generateToken(usuario.getCorreo());
 
