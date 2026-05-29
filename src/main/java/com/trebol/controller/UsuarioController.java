@@ -7,8 +7,8 @@ import com.trebol.service.UsuarioService;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,17 +30,19 @@ public class UsuarioController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UsuarioResponseDTO> listarUsuarios() {
         return usuarioService.listarUsuarios();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public UsuarioResponseDTO obtenerUsuario(@PathVariable Long id) {
-
         return usuarioService.obtenerUsuario(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public UsuarioResponseDTO actualizarUsuario(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioRequestDTO request
@@ -49,6 +51,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminarUsuario(id);

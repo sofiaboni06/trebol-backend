@@ -1,7 +1,9 @@
 package com.trebol.security;
 
-import com.trebol.repository.UsuarioRepository;
+import com.trebol.entity.Permiso;
+import com.trebol.entity.Rol;
 import com.trebol.entity.Usuario;
+import com.trebol.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,8 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -25,14 +27,27 @@ public class CustomUserDetailsService implements UserDetailsService {
         Usuario usuario = usuarioRepository.findByCorreo(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + username));
 
-        Collection<? extends GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_USER")
-        );
+        Set<GrantedAuthority> authorities = buildAuthorities(usuario);
 
         return new User(
                 usuario.getCorreo(),
                 usuario.getPassword(),
                 authorities
         );
+    }
+
+    private Set<GrantedAuthority> buildAuthorities(Usuario usuario) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        for (Rol rol : usuario.getRoles()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + rol.getNombre()));
+            if (rol.getPermisos() != null) {
+                for (Permiso permiso : rol.getPermisos()) {
+                    authorities.add(new SimpleGrantedAuthority(permiso.getNombre()));
+                }
+            }
+        }
+
+        return authorities;
     }
 }

@@ -1,9 +1,18 @@
 package com.trebol.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Rol {
 
     @Id
@@ -13,27 +22,12 @@ public class Rol {
     @Column(unique = true, nullable = false)
     private String nombre;
 
-    public Rol() {
-    }
-
-    public Rol(Long id, String nombre) {
-        this.id = id;
-        this.nombre = nombre;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "roles_permisos",
+            joinColumns = @JoinColumn(name = "rol_id"),
+            inverseJoinColumns = @JoinColumn(name = "permiso_id")
+    )
+    @Builder.Default
+    private Set<Permiso> permisos = new HashSet<>();
 }
