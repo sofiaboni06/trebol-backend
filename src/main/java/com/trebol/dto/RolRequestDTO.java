@@ -1,21 +1,17 @@
 package com.trebol.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponseDTO {
+@Builder
+public class RolRequestDTO {
 
-    private String token;
-
-    private String refreshToken;
-
-    private UsuarioResponseDTO usuario;
-
-    private String mensaje;
+    @NotBlank(message = "El nombre del rol es obligatorio")
+    private String nombre;
 }
