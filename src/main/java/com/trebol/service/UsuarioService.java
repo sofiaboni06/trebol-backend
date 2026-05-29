@@ -2,9 +2,13 @@ package com.trebol.service;
 
 import com.trebol.dto.LoginRequestDTO;
 import com.trebol.dto.LoginResponseDTO;
+import com.trebol.dto.RegisterRequestDTO;
+import com.trebol.dto.RegisterResponseDTO;
 import com.trebol.dto.UsuarioRequestDTO;
 import com.trebol.dto.UsuarioResponseDTO;
+import com.trebol.entity.Rol;
 import com.trebol.entity.Usuario;
+import com.trebol.repository.RolRepository;
 import com.trebol.repository.UsuarioRepository;
 import com.trebol.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
@@ -40,6 +45,39 @@ public class UsuarioService {
                 .nombre(guardado.getNombre())
                 .apellido(guardado.getApellido())
                 .correo(guardado.getCorreo())
+                .build();
+    }
+
+    public RegisterResponseDTO register(RegisterRequestDTO request) {
+        Rol rolCliente = rolRepository.findByNombre("CLIENTE")
+                .orElseThrow(() -> new IllegalArgumentException("Rol CLIENTE no encontrado"));
+
+        Usuario usuario = Usuario.builder()
+                .nombre(request.getNombre())
+                .apellido(request.getApellido())
+                .correo(request.getCorreo())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .telefono(request.getTelefono())
+                .direccion(request.getDireccion())
+                .build();
+
+        usuario.getRoles().add(rolCliente);
+
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        String token = jwtService.generateToken(guardado.getCorreo());
+
+        UsuarioResponseDTO usuarioResponse = UsuarioResponseDTO.builder()
+                .id(guardado.getId())
+                .nombre(guardado.getNombre())
+                .apellido(guardado.getApellido())
+                .correo(guardado.getCorreo())
+                .build();
+
+        return RegisterResponseDTO.builder()
+                .token(token)
+                .usuario(usuarioResponse)
+                .mensaje("Registro exitoso")
                 .build();
     }
 
