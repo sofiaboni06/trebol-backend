@@ -5,7 +5,7 @@ import com.trebol.dto.CategoriaResponseDTO;
 import com.trebol.service.CategoriaService;
 
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +18,7 @@ public class CategoriaController {
     private final CategoriaService categoriaService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoriaResponseDTO crear(
             @RequestBody CategoriaRequestDTO request
     ) {
@@ -27,7 +28,6 @@ public class CategoriaController {
 
     @GetMapping
     public List<CategoriaResponseDTO> listar() {
-
         return categoriaService.listar();
     }
 
@@ -35,11 +35,11 @@ public class CategoriaController {
     public CategoriaResponseDTO buscarPorId(
             @PathVariable Long id
     ) {
-
         return categoriaService.buscarPorId(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoriaResponseDTO actualizar(
             @PathVariable Long id,
             @RequestBody CategoriaRequestDTO request
@@ -49,6 +49,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void eliminar(
             @PathVariable Long id
     ) {

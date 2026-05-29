@@ -4,14 +4,18 @@ import com.trebol.dto.LoginRequestDTO;
 import com.trebol.dto.LoginResponseDTO;
 import com.trebol.dto.UsuarioRequestDTO;
 import com.trebol.dto.UsuarioResponseDTO;
+import com.trebol.entity.Rol;
 import com.trebol.entity.Usuario;
+import com.trebol.repository.RolRepository;
 import com.trebol.repository.UsuarioRepository;
 import com.trebol.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,10 +23,18 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO request) {
+        Rol rolUsuario = rolRepository.findByNombre("USER")
+                .orElseGet(() -> rolRepository.save(Rol.builder()
+                        .nombre("USER")
+                        .build()));
+
+        Set<Rol> roles = new HashSet<>();
+        roles.add(rolUsuario);
 
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
@@ -31,6 +43,7 @@ public class UsuarioService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .telefono(request.getTelefono())
                 .direccion(request.getDireccion())
+                .roles(roles)
                 .build();
 
         Usuario guardado = usuarioRepository.save(usuario);
