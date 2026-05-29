@@ -3,6 +3,7 @@ package com.trebol.service.impl;
 import com.trebol.dto.CategoriaRequestDTO;
 import com.trebol.dto.CategoriaResponseDTO;
 import com.trebol.entity.Categoria;
+import com.trebol.exception.ResourceNotFoundException;
 import com.trebol.repository.CategoriaRepository;
 import com.trebol.service.CategoriaService;
 
@@ -45,7 +46,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     public CategoriaResponseDTO buscarPorId(Long id) {
 
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoria no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
 
         return mapear(categoria);
     }
@@ -54,7 +55,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     public CategoriaResponseDTO actualizar(Long id, CategoriaRequestDTO request) {
 
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoria no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
 
         categoria.setNombre(request.getNombre());
         categoria.setDescripcion(request.getDescripcion());
