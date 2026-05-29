@@ -7,10 +7,12 @@ import com.trebol.dto.RegisterResponseDTO;
 import com.trebol.dto.UsuarioRequestDTO;
 import com.trebol.dto.UsuarioResponseDTO;
 import com.trebol.entity.Rol;
+import com.trebol.entity.RefreshToken;
 import com.trebol.entity.Usuario;
 import com.trebol.repository.RolRepository;
 import com.trebol.repository.UsuarioRepository;
 import com.trebol.security.JwtService;
+import com.trebol.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +30,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
@@ -149,6 +152,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con correo: " + request.getCorreo()));
 
         String token = jwtService.generateToken(usuario.getCorreo());
+        String refreshToken = refreshTokenService.createRefreshToken(usuario).getToken();
 
         UsuarioResponseDTO usuarioResponse = UsuarioResponseDTO.builder()
                 .id(usuario.getId())
@@ -159,8 +163,36 @@ public class UsuarioService {
 
         return LoginResponseDTO.builder()
                 .token(token)
+                .refreshToken(refreshToken)
                 .usuario(usuarioResponse)
                 .mensaje("Login exitoso")
                 .build();
+    }
+
+    public LoginResponseDTO refreshToken(String refreshTokenRequest) {
+        RefreshToken refreshToken = refreshTokenService.verifyExpiration(
+                refreshTokenService.findByToken(refreshTokenRequest)
+        );
+
+        Usuario usuario = refreshToken.getUsuario();
+        String token = jwtService.generateToken(usuario.getCorreo());
+        String newRefreshToken = refreshTokenService.createRefreshToken(usuario).getToken();
+        refreshTokenService.deleteByToken(refreshToken.getToken());
+
+        return LoginResponseDTO.builder()
+                .token(token)
+                .refreshToken(newRefreshToken)
+                .usuario(UsuarioResponseDTO.builder()
+                        .id(usuario.getId())
+                        .nombre(usuario.getNombre())
+                        .apellido(usuario.getApellido())
+                        .correo(usuario.getCorreo())
+                        .build())
+                .mensaje("Refresh token exitoso")
+                .build();
+    }
+
+    public void logout(String refreshTokenRequest) {
+        refreshTokenService.deleteByToken(refreshTokenRequest);
     }
 }
