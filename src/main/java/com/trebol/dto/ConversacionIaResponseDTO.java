@@ -17,6 +17,7 @@ public class ConversacionIaResponseDTO {
     private Long usuarioId;
     private String mensajeUsuario;
     private String mensajeIa;
+    private String redirectUrl;
     private String contexto;
     private String modelo;
     private LocalDateTime fechaCreacion;
