@@ -19,7 +19,6 @@ public class ConversacionIaRequestDTO {
     @NotBlank(message = "El mensaje del usuario es obligatorio")
     private String mensajeUsuario;
 
-    @NotBlank(message = "La respuesta de IA es obligatoria")
     private String mensajeIa;
 
     private String contexto;
