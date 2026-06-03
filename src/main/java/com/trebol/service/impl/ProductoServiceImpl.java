@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -56,6 +57,47 @@ public class ProductoServiceImpl implements ProductoService {
 
         return productoRepository.findAll()
                 .stream()
+                .map(this::mapear)
+                .toList();
+    }
+
+    @Override
+    public List<ProductoResponseDTO> buscar(
+            String nombre,
+            Long categoriaId,
+            BigDecimal precioMin,
+            BigDecimal precioMax
+    ) {
+        return productoRepository.findAll()
+                .stream()
+                .filter(producto -> {
+                    // Filtrar por nombre
+                    if (nombre != null && !nombre.isBlank()) {
+                        String nombreLower = nombre.toLowerCase();
+                        if (!producto.getNombre().toLowerCase().contains(nombreLower) &&
+                            !producto.getDescripcion().toLowerCase().contains(nombreLower)) {
+                            return false;
+                        }
+                    }
+
+                    // Filtrar por categoría
+                    if (categoriaId != null) {
+                        if (producto.getCategoria() == null || 
+                            !producto.getCategoria().getId().equals(categoriaId)) {
+                            return false;
+                        }
+                    }
+
+                    // Filtrar por rango de precio
+                    if (precioMin != null && producto.getPrecio().compareTo(precioMin) < 0) {
+                        return false;
+                    }
+                    if (precioMax != null && producto.getPrecio().compareTo(precioMax) > 0) {
+                        return false;
+                    }
+
+                    return true;
+                })
                 .map(this::mapear)
                 .toList();
     }

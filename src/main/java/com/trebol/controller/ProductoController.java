@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -30,6 +31,22 @@ public class ProductoController {
     @GetMapping
     public ResponseEntity<List<ProductoResponseDTO>> listar() {
         List<ProductoResponseDTO> response = productoService.listar();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProductoResponseDTO>> buscar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax
+    ) {
+        List<ProductoResponseDTO> response = productoService.buscar(
+                nombre,
+                categoriaId,
+                precioMin,
+                precioMax
+        );
         return ResponseEntity.ok(response);
     }
 
