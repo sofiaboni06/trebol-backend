@@ -26,6 +26,9 @@ public class RefreshToken {
     private Usuario usuario;
 
     @Column(name = "fecha_expiracion", nullable = false)
+    private LocalDateTime fechaExpiracion;
+
+    @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
     @Column(name = "created_at", nullable = false)

@@ -5,6 +5,7 @@ import com.trebol.dto.LoginResponseDTO;
 import com.trebol.dto.RegisterRequestDTO;
 import com.trebol.dto.RegisterResponseDTO;
 import com.trebol.dto.UsuarioRequestDTO;
+import com.trebol.dto.RolResponseDTO;
 import com.trebol.dto.UsuarioResponseDTO;
 import com.trebol.entity.Rol;
 import com.trebol.entity.RefreshToken;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +54,7 @@ public class UsuarioService {
                 .nombre(guardado.getNombre())
                 .apellido(guardado.getApellido())
                 .correo(guardado.getCorreo())
+                .roles(mapRoles(guardado.getRoles()))
                 .build();
     }
 
@@ -79,6 +82,7 @@ public class UsuarioService {
                 .nombre(guardado.getNombre())
                 .apellido(guardado.getApellido())
                 .correo(guardado.getCorreo())
+                .roles(mapRoles(guardado.getRoles()))
                 .build();
 
         return RegisterResponseDTO.builder()
@@ -96,6 +100,7 @@ public class UsuarioService {
                         .nombre(usuario.getNombre())
                         .apellido(usuario.getApellido())
                         .correo(usuario.getCorreo())
+                        .roles(mapRoles(usuario.getRoles()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -109,6 +114,7 @@ public class UsuarioService {
                 .nombre(usuario.getNombre())
                 .apellido(usuario.getApellido())
                 .correo(usuario.getCorreo())
+                .roles(mapRoles(usuario.getRoles()))
                 .build();
     }
 
@@ -130,6 +136,7 @@ public class UsuarioService {
                 .nombre(actualizado.getNombre())
                 .apellido(actualizado.getApellido())
                 .correo(actualizado.getCorreo())
+                .roles(mapRoles(actualizado.getRoles()))
                 .build();
     }
 
@@ -159,6 +166,7 @@ public class UsuarioService {
                 .nombre(usuario.getNombre())
                 .apellido(usuario.getApellido())
                 .correo(usuario.getCorreo())
+                .roles(mapRoles(usuario.getRoles()))
                 .build();
 
         return LoginResponseDTO.builder()
@@ -187,6 +195,7 @@ public class UsuarioService {
                         .nombre(usuario.getNombre())
                         .apellido(usuario.getApellido())
                         .correo(usuario.getCorreo())
+                        .roles(mapRoles(usuario.getRoles()))
                         .build())
                 .mensaje("Refresh token exitoso")
                 .build();
@@ -194,5 +203,14 @@ public class UsuarioService {
 
     public void logout(String refreshTokenRequest) {
         refreshTokenService.deleteByToken(refreshTokenRequest);
+    }
+
+    private Set<RolResponseDTO> mapRoles(Set<Rol> roles) {
+        return roles == null ? Set.of() : roles.stream()
+                .map(rol -> RolResponseDTO.builder()
+                        .id(rol.getId())
+                        .nombre(rol.getNombre())
+                        .build())
+                .collect(Collectors.toSet());
     }
 }

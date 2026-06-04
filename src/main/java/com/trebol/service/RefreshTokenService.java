@@ -29,6 +29,7 @@ public class RefreshTokenService {
                 .token(UUID.randomUUID().toString())
                 .usuario(usuario)
                 .createdAt(now)
+                .fechaExpiracion(expiryDate)
                 .expiryDate(expiryDate)
                 .build();
 
